@@ -4,24 +4,28 @@ import leader
 global main,MAXA
 MAXA = 20
 
+
 main = pygame.display.set_mode((650, 650))
 global black, white, red, write_text,font,showl
 red = (255,0,0)
 white = (255,255,255)
 black = (0,0,0)
 
-global pointd,missle,astroid
+global pointd,missle,astroid,cu
 pointd = {100:70,200:50,400:40}
 
+
+gcu = False
+
 class missle:
-    def __init__(self,rect,xs,ys):
+    def __init__(self,rect,xs,ys,typ="N"):
       self.rect = rect
       self.xs = xs
       self.ys = ys
-
+      self.type = typ
 
 class astroid(pygame.sprite.Sprite):
-      def __init__(self,x,y,xs,ys):
+      def __init__(self,x,y,xs,ys,):
         
         self.points = random.choice((100,100,100,100,200,200,400))
         sz = pointd[self.points]
@@ -30,7 +34,7 @@ class astroid(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.image,random.randrange(-180,180))
         self.rect = self.image.get_rect()
         self.rect.center = [x,y] 
-
+        self.type = type
         self.xs = xs
         self.ys = ys
 
@@ -60,8 +64,11 @@ def showl():
           if event.type == KEYDOWN and event.key == K_ESCAPE: sys.exit()
 
 
-def main_(tn):
+def main_(tn,cu):
+  mu = False
   na = 0
+  circrad = 0
+  iss=False
 
   MSPEED = 5
   SPINSPEED = math.pi/90
@@ -69,9 +76,8 @@ def main_(tn):
   score = 0
 
   
-
-
-  
+  crclcolors = ((0,0,255),(50, 245, 245),(160, 127, 201))
+  crclc = random.choice(crclcolors)
     
   
 
@@ -87,6 +93,7 @@ def main_(tn):
 
   player = pygame.Rect((middle,middle),(30,30))
   player.center = (middle,middle)
+  
 
   m = []
   astroids = []
@@ -100,12 +107,19 @@ def main_(tn):
   ca = 0
 
   
-  
+  crcl = pygame.draw.circle(main,(0,0,255),[middle,middle],circrad,5)
+
   while True:
       main.fill(black)
-      
-      
-
+    
+      if iss:
+        crcl = pygame.draw.circle(main,crclc,[middle,middle],circrad,5)
+        circrad += 5
+        if circrad > 300:
+          iss = False
+          circrad = 0
+          crcl = pygame.draw.circle(main,crclc,[middle,middle],circrad,5)
+        
       pygame.draw.rect(main,white,player)
       pygame.draw.line(main, white, (middle,middle), lnpt, 3)
       for event in pygame.event.get():
@@ -114,12 +128,17 @@ def main_(tn):
               sys.exit()
             
           if event.type == KEYDOWN:
-        
+            if event.key == K_c:
+              if not cu:
+                iss = True
+                cu = True
             if event.key == K_SPACE:
               if na < MAXA:
-                m.append(missle(pygame.Rect(middle,middle,3,3),\
+                m.append(\
+                  missle(pygame.Rect(middle,middle,3,3),\
                                 MSPEED*math.sin(rotation),\
-                                MSPEED*math.cos(rotation)))
+                                MSPEED*math.cos(rotation),)
+                  )
                 na +=1
 
               else:
@@ -140,25 +159,33 @@ def main_(tn):
            middle+math.cos(rotation)*LNLEN)
       for mi in m:
         
+        
+        
+        pygame.draw.rect(main,red,mi)
         mi.rect.top += mi.ys
         mi.rect.left += mi.xs
-        pygame.draw.rect(main,red,mi)
-      
+
+
       for a in astroids:
         a.rect.centery += a.ys
         a.rect.centerx += a.xs
         main.blit(a.image,a.rect)
         if a.rect.colliderect(player) or player.colliderect(a.rect):
           
-          return (score)
-
+          return score,cu
+        if a.rect.colliderect(crcl):
+            
+            score+= a.points
+            
+            a.rect.center = (random.randrange(65000,6500000000),random.randrange(65000,6500000000),)
+        
         for mi2 in m:
           if mi2.rect.colliderect(a.rect) or a.rect.colliderect(mi2.rect):
               score+= a.points
               
-              
-              mi.rect.center = (random.randrange(650,65000000),random.randrange(650,65000000),)
-              a.rect.center = (random.randrange(650,65000000),random.randrange(650,65000000),)
+              mi.rect.center = (random.randrange(65000,6500000000),random.randrange(65000,6500000000),) 
+              a.rect.center = (random.randrange(65000,65000000),random.randrange(65000,6500000000),)
+
       if na >= MAXA:
         if ca + 180 <= itr and ca != 0:
           na = 0
@@ -166,7 +193,12 @@ def main_(tn):
       if itr % 1200 == 0:
         na = 0
         ca = 0
+      if circrad > 50:
+        crclc = crclcolors[1]
+      if circrad > 200:
+        crclc = crclcolors[2]
       if itr%65 == 0:
+        
         cn = random.randrange(0,8)
         if cn == 0:
           sy =  random.uniform(.2,2)
@@ -265,10 +297,18 @@ def wait(cs):
       if event.type == KEYDOWN: return
 
 
-sco = main_(2)
+sco,gcu = main_(2,False)
 wait(sco)
-sco += main_(1)
+
+
+
+sco2, gcu2 = main_(1 , gcu)
+sco += sco2
+gco = gcu2 or gcu
+
 wait(sco)
-sco += main_(0)
+sco3, gcu3 = main_(0, gcu)
+sco += sco3
+
 
 get_init(sco)
