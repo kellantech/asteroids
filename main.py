@@ -12,17 +12,17 @@ white = (255,255,255)
 black = (0,0,0)
 
 global pointd,missle,astroid,cu
-pointd = {100:70,200:50,400:40}
+pointd = {100:70,200:50,400:40,}
 
 
 gcu = False
 
 class missle:
-    def __init__(self,rect,xs,ys,typ="N"):
+    def __init__(self,rect,xs,ys):
       self.rect = rect
       self.xs = xs
       self.ys = ys
-      self.type = typ
+      self.color = random.choice([(255,0,0),(0,0,255),(0,255,0)])
 
 class astroid(pygame.sprite.Sprite):
       def __init__(self,x,y,xs,ys,):
@@ -106,12 +106,15 @@ def main_(tn,cu):
   itr = 0
   ca = 0
 
+  tss = 1000
+
   
   crcl = pygame.draw.circle(main,(0,0,255),[middle,middle],circrad,5)
 
   while True:
       main.fill(black)
-    
+      if not cu:
+        pygame.draw.circle(main,(50, 245, 245),(30,30),15,3)
       if iss:
         crcl = pygame.draw.circle(main,crclc,[middle,middle],circrad,5)
         circrad += 5
@@ -161,7 +164,7 @@ def main_(tn,cu):
         
         
         
-        pygame.draw.rect(main,red,mi)
+        pygame.draw.rect(main,mi.color,mi.rect)
         mi.rect.top += mi.ys
         mi.rect.left += mi.xs
 
@@ -185,7 +188,11 @@ def main_(tn,cu):
               
               mi.rect.center = (random.randrange(65000,6500000000),random.randrange(65000,6500000000),) 
               a.rect.center = (random.randrange(65000,65000000),random.randrange(65000,6500000000),)
-
+      if score> tss:
+        cu = False
+        
+        tss = tss + 5000
+        print(tss)
       if na >= MAXA:
         if ca + 180 <= itr and ca != 0:
           na = 0
